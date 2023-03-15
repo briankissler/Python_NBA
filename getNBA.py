@@ -2,8 +2,16 @@ import json
 import requests
 import traceback
 import csv
+import os 
 
-def searchApi(query):
+
+counter = 0 
+def addCounter():
+     global counter
+     counter = counter + 1
+     return counter
+
+def searchApi(query,seas):
     print("starting...")
     endpoint = "https://stats.nba.com/stats/playergamelogs"
     data = {
@@ -23,7 +31,7 @@ def searchApi(query):
             "Period":"0",
             "PlusMinus":"N",
             "Rank":"N",
-            "Season":"2021-22",
+            "Season":seas,
             "SeasonSegment":"",
             "SeasonType":"Regular Season",
             "ShotClockRange":"",
@@ -62,13 +70,20 @@ def searchApi(query):
                 #print(response.json() )
                 #response = response.json()
             
-            with open('NBA_Last10.csv', 'w', newline='', encoding='utf-8') as pt_data1:
+            with open('NBA_Last3_Seasons.csv', 'a', newline='', encoding='utf-8') as pt_data1:
                 csvwriter = csv.writer(pt_data1)
-                csvwriter.writerow( data["resultSets"][0]["headers"] )
+                addCounter()
+                if counter == 1:
+                    csvwriter.writerow( data["resultSets"][0]["headers"] )
                 for model in data["resultSets"][0]["rowSet"]:
                     csvwriter.writerow(model)
     except Exception:
         print(traceback.format_exc())
 
+if os.path.exists("NBA_Last3_Seasons.csv"):
+  os.remove("NBA_Last3_Seasons.csv")
 
-searchApi("10")        
+searchApi("100","2022-23")
+searchApi("100","2021-22")
+searchApi("100","2020-21")      
+
